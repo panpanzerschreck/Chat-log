@@ -35,7 +35,7 @@ struct Message
 	string sentFrom;
 	string sentTo;
 	time_t timeSent;
-	Message(string text = "text", string type = "type", size_t id = 1, float rate = 0, string sentFrom = "text", string sentTo = "text") {
+	Message(string text = "text", string type = "type", size_t id = 0, float rate = 0, string sentFrom = "text", string sentTo = "text") {
 		static int newId = 0;
 
 		this->text = text;
@@ -44,6 +44,7 @@ struct Message
 		this->rate = rate;
 		this->sentFrom = sentFrom;
 		this->sentTo = sentTo;
+		
 		this->timeSent = time(NULL);
 	}
 };
@@ -65,7 +66,7 @@ struct DoublyLinkedList {
 	size_t size;
 
 	DoublyLinkedList() {
-		begin = new Node(NULL,NULL,NULL);
+		begin = nullptr;
 		end = begin;
 		size = 0;
 	}
@@ -73,7 +74,11 @@ struct DoublyLinkedList {
 	Node* add(Message* message)
 	{
 		Node* newItem = new Node(this->end, nullptr, message);
-		this->end->next = newItem;
+		
+		
+		if (this->begin == nullptr) {
+			this->begin = newItem;
+		}else{ this->end->next = newItem; }
 		this->end = newItem;
 		this->size++;
 		return newItem;
@@ -130,7 +135,7 @@ struct DoublyLinkedList {
 		Node* current = begin;
 		while (current) {
 			if (current->message) {
-				cout << current->message->id << " " << current->message->rate << " " << current->message->sentFrom << " " << current->message->sentTo << " " << current->message->text << " " << current->message->timeSent << endl;
+				cout << current->message->id << " " << current->message->type << " " << current->message->rate << " " << current->message->sentFrom << " " << current->message->sentTo << " " << current->message->text << " " << current->message->timeSent << endl;
 				
 			}
 			current = current->next;
@@ -218,10 +223,10 @@ struct DoublyLinkedList {
 };
 
 
-istream& operator >>(istream& is, Node& node) {
+ ostream& operator <<(ostream& os, Node* node) {
 
-	is >> node.message->text >> node.message->type >> node.message->id >> node.message->rate >> node.message->sentFrom >> node.message->sentTo >> node.message->timeSent;
-	return is;
+	os << node->message->text << node->message->type << node->message->id << node->message->rate << node->message->sentFrom << node->message->sentTo << node->message->timeSent;
+	return os;
 }
 
 
@@ -232,7 +237,7 @@ int main()
 	
 	fstream ftxt;
 	//fstream fbin;
-	ftxt.open(TXT_PATH, fstream::in | fstream::out | fstream::app);
+	ftxt.open(TXT_PATH, fstream::in | fstream::out);
 
 	string text;
 	string type;
@@ -354,11 +359,11 @@ int main()
 
 	  }*/
 	messages.print();
-	while (messages.begin)
+	for (size_t i = 0; i < messages.size; i++)
 	{
-
 		ftxt << messages.begin;
 		messages.removeByIndex(0);
+		messages.print();
 	}
 	ftxt.close();
 	//fbin.close();
